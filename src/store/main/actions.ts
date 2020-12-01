@@ -9,14 +9,13 @@ export const actions: ActionTree<MainState, RootState> = {
       url: "https://jsonplaceholder.typicode.com/users"
     }).then(
       response => {
-        const users: MainState = response && response.data;
+        const users: Array<User> = response && response.data;
         users.forEach((el: User): void => {
           el.id = Math.random()
-            .toString(36) 
+            .toString(36)
             .substr(2, 9);
         });
-        const payload: MainState = users;
-        console.log("payload",payload)
+        const payload: Array<User> = users;
         commit("usersLoaded", payload);
       },
       error => {
@@ -24,5 +23,13 @@ export const actions: ActionTree<MainState, RootState> = {
         commit("usersError");
       }
     );
+  },
+  usersLeftEdit(data, payload): any {
+    const commit: any = data.commit;
+    commit("usersLeftEdit", payload);
+  },
+  usersRightEdit(data, payload): any {
+    const commit: any = data.commit;
+    commit("usersRightEdit", payload);
   }
 };

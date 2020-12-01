@@ -22,7 +22,16 @@ export interface User {
   };
 }
 
-export interface MainState {
-  leftUsers?: Array<User> | [];
-  rightUsers?: Array<User> | [];
+export interface EditedData {
+  date: Date;
+}
+
+interface HistoryData {
+  editedUser?: User | null;
+}
+
+export interface HistoryState {
+  historyAll?: Array<HistoryData> | [];
+  historyAdding?: Array<HistoryData> | [];
+  historyDeleting?: Array<HistoryData> | [];
 }

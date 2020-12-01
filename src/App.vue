@@ -1,32 +1,50 @@
 <template>
-  <div id="app">
+  <v-app>
     <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <v-container class="grey lighten-5">
+        <v-row justify="space-around">
+          <v-col cols="10">
+            <router-link to="/">
+              <v-btn depressed color="primary">
+                Home
+              </v-btn>
+            </router-link>
+            |
+            <router-link to="/history">
+              <v-btn depressed color="primary">
+                History
+              </v-btn>
+            </router-link>
+            |
+            <router-link to="/adding">
+              <v-btn depressed color="primary">
+                History Adding
+              </v-btn>
+            </router-link>
+            |
+            <router-link to="/deleting">
+              <v-btn depressed color="primary">
+                History Deleting
+              </v-btn>
+            </router-link>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
     <router-view />
-  </div>
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script lang="ts">
+import Vue from "vue";
 
-#nav {
-  padding: 30px;
-}
+export default Vue.extend({
+  name: "App",
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+  components: {},
 
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+  data: () => ({
+    //
+  })
+});
+</script>

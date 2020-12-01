@@ -1,57 +1,166 @@
 <template>
-  <div class="hello">
-    <template>
-  <v-card>
-    <v-card-title>
-      Nutrition
-      <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        single-line
-        hide-details
-      ></v-text-field>
-    </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="desserts"
-      :search="search"
-    ></v-data-table>
-  </v-card>
-</template>
-    <div v-for="user in this.main.users" :key="user.id">
-      <h3>{{ user.id }} {{ user.name }}</h3>
-    </div>
+  <div class="main">
+    <v-container class="grey lighten-5">
+      <v-row justify="space-around">
+        <v-col cols="4">
+          <v-card class="pa-2" outlined tile>
+            <v-card-title>
+              Left Users
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="searchLeft"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-card-title>
+            <v-data-table
+              :headers="headers"
+              :items="this.main.leftUsers"
+              :search="searchLeft"
+              hide-default-footer
+            >
+              <template v-slot:[`item.actions`]="{ item }">
+                <v-btn fab dark small color="primary">
+                  <v-icon small @click="editUsersLeft(item)">
+                    mdi-plus
+                  </v-icon>
+                </v-btn>
+              </template>
+            </v-data-table>
+          </v-card>
+        </v-col>
+        <v-col cols="4">
+          <v-card class="pa-2" outlined tile>
+            <v-card-title>
+              Right Users
+              <v-spacer></v-spacer>
+              <v-text-field
+                v-model="searchRight"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+              ></v-text-field>
+            </v-card-title>
+            <v-data-table
+              :headers="headers"
+              :items="this.main.rightUsers"
+              :search="searchRight"
+              hide-default-footer
+            >
+              <template v-slot:[`item.actions`]="{ item }">
+                <v-btn fab dark small color="primary">
+                  <v-icon small @click="editRightLeft(item)">
+                    mdi-minus
+                  </v-icon>
+                </v-btn>
+              </template></v-data-table
+            >
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { State, Action, Getter } from "vuex-class";
-import { MainState } from "../store/main/types";
+import { State, Getter, Action, Mutation, namespace } from "vuex-class";
+// import { MainState, User } from "../store/main/types";
 
-const namespace = "main";
+const MainAction = namespace("main", Action);
+const HistoryAction = namespace("history", Action);
+const MainGetter = namespace("main", Getter);
+const HistoryGetter = namespace("history", Getter);
 
 @Component
 export default class Main extends Vue {
   @State("main") main: any;
-  @Action("fetchData", { namespace }) fetchData: any;
-  @Getter("getNames", { namespace }) getNames: any;
+  @State("history") history: any;
+  @MainGetter getNames: any;
+  @HistoryGetter getHistory: any;
+  @MainAction fetchData: any;
+  @MainAction usersLeftEdit: any;
+  @MainAction usersRightEdit: any;
+  @HistoryAction setHistoryAllData: any;
+  @HistoryAction addingHistoryAllData: any;
+  @HistoryAction deletingHistoryAllData: any;
 
   constructor() {
     super();
   }
-  mounted() {
-    // fetching data as soon as the component's been mounted
-    this.fetchData();
-    // console.log(this.$http.get('http://jsonplaceholder.typicode.com/posts'));
+
+  data() {
+    return {
+      searchLeft: "",
+      searchRight: "",
+      headers: [
+        {
+          text: "Names",
+          align: "start",
+          sortable: false,
+          value: "name"
+        },
+        { text: "", value: "actions", align: 'right', sortable: false }
+      ]
+    };
   }
-  // computed variable based on user's email
-  // get email() {
-  //   users = this.main && this.main.users;
-  //   return users;
-  // }
+
+  created() {
+    if (this.main.leftUsers.length === 0) {
+      this.fetchData();
+    }
+  }
+
+  public editUsersLeft(item: any): void {
+    const leftUsers = this.main.leftUsers;
+    const rightUsers = this.main.rightUsers;
+    const editedIndex = this.main.leftUsers.indexOf(item);
+
+    leftUsers.splice(editedIndex, 1);
+    rightUsers.indexOf(item) === -1
+      ? rightUsers.push(item)
+      : console.log("This user already exists");
+
+    this.usersLeftEdit(leftUsers, leftUsers);
+    this.usersRightEdit(rightUsers, rightUsers);
+
+    const d: Date = new Date();
+    item.date = d;
+    item.action = "Adding";
+
+    this.history.historyAll.push(item);
+    this.history.historyAdding.push(item);
+    
+    this.setHistoryAllData(this.history, item);
+    this.addingHistoryAllData(this.history, item);
+  }
+
+  public editRightLeft(item: any): void {
+    const leftUsers = this.main.leftUsers;
+    const rightUsers = this.main.rightUsers;
+    const editedIndex = this.main.rightUsers.indexOf(item);
+
+    rightUsers.splice(editedIndex, 1);
+    leftUsers.indexOf(item) === -1
+      ? leftUsers.push(item)
+      : console.log("This user already exists");
+
+    this.usersLeftEdit(leftUsers, leftUsers);
+    this.usersRightEdit(rightUsers, rightUsers);
+
+    const d: Date = new Date();
+    item.date = d;
+    item.action = "Deleting";
+
+    this.history.historyAll.push(item);
+    this.history.historyDeleting.push(item);
+    
+    this.setHistoryAllData(this.history, item);
+    this.deletingHistoryAllData(this.history, item);
+  }
 }
 </script>
 
